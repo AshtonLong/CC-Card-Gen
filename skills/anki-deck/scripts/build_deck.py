@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Package validated card JSON files into an Anki .apkg (cloze note type, one subdeck per lecture).
+r"""Package validated card JSON files into an Anki .apkg (cloze note type, one subdeck per lecture).
 
-Usage: python build_deck.py <manifest.json>
+Usage: python build_deck.py <manifest.json> [--pin-guids]
 
 manifest.json:
 {
@@ -15,10 +15,16 @@ manifest.json:
   ]
 }
 
-Each card: {"text", "extra"?, "tags", "source"?, "yield", "figure"?: {"file"|"pdf": name, "page": N}}.
+Each card: {"text", "extra"?, "tags", "source"?, "yield", "figure"?: {"file"|"pdf": name, "page": N}, "guid"?}.
+Text and extra may contain MathJax (\( ... \) and \[ ... \]); Anki typesets it natively.
 Figures are rendered from the source PDF page to JPEG and shown on the back of the card.
-Deck/note IDs are derived from deck_name + card text, so re-importing a rebuilt deck
-updates existing notes (keeping review history) instead of duplicating them.
+Note IDs come from a card's "guid" field if present, else from deck_name + card text, so
+re-importing a rebuilt deck updates existing notes (keeping review history) instead of
+duplicating them.
+
+--pin-guids: build nothing; instead write each card's current note ID into a "guid" field
+in its JSON file. Run this before rewriting the text of cards the student has already
+imported, so the rewritten cards still update the same notes.
 The script re-opens the written package and prints note/card counts as a check.
 """
 import hashlib
@@ -74,13 +80,29 @@ def esc(s):
     return html.escape(s or "", quote=False).replace("\n", "<br>")
 
 
+def pin_guids(man):
+    for sub in man["subdecks"]:
+        cards = json.load(open(sub["cards"], encoding="utf-8"))
+        added = 0
+        for c in cards:
+            if not c.get("guid"):
+                c["guid"] = genanki.guid_for(man["deck_name"], c["text"])
+                added += 1
+        with open(sub["cards"], "w", encoding="utf-8") as f:
+            json.dump(cards, f, ensure_ascii=False, indent=1)
+        print(f"{sub['title']}: pinned {added} guids ({len(cards)} cards)")
+
+
 def main():
-    if len(sys.argv) != 2:
+    args = [a for a in sys.argv[1:] if a != "--pin-guids"]
+    if len(args) != 1:
         sys.exit(__doc__)
-    man = json.load(open(sys.argv[1], encoding="utf-8"))
+    man = json.load(open(args[0], encoding="utf-8"))
+    if "--pin-guids" in sys.argv:
+        return pin_guids(man)
     deck_name, out, src = man["deck_name"], man["out"], man.get("source_dir", "")
     keep = set(man.get("include_yield") or ["high", "medium", "low"])
-    media_dir = os.path.join(os.path.dirname(os.path.abspath(sys.argv[1])), "media")
+    media_dir = os.path.join(os.path.dirname(os.path.abspath(args[0])), "media")
     os.makedirs(media_dir, exist_ok=True)
     slug = hashlib.sha1(deck_name.encode()).hexdigest()[:6]
 
@@ -116,7 +138,7 @@ def main():
                 model=MODEL,
                 fields=[esc(c["text"]), esc(c.get("extra")), fig_html, esc(c.get("source"))],
                 tags=tags,
-                guid=genanki.guid_for(deck_name, c["text"]),
+                guid=c.get("guid") or genanki.guid_for(deck_name, c["text"]),
             )
             deck.add_note(note)
             n_notes += 1

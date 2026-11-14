@@ -72,7 +72,7 @@ card the idea, not the story.
 - Low (skip in exam mode): `At the end of 1974 NYC faced a projected budget shortfall of {{c1::$1.5B}}.`
 - High (the lesson the case teaches): `NYC's 1975 fiscal crisis came from years of {{c1::borrowing to cover operating costs}}, which produced {{c2::huge deficits}} once the economy stagnated.`
 - Low: `TomTom 2025: {{c1::London}} has the world's longest average travel time per 10 km.`
-- High: `In the monocentric city model with fixed lot size L, the rent gradient is {{c1::−t/L}}, so higher commuting costs make rents fall {{c2::faster}} with distance from the CBD.`
+- High: `In the monocentric city model with fixed lot size \(L\), the rent gradient is \(r'(d) = {{c1::-t/L}}\), so higher commuting costs make rents fall {{c2::faster}} with distance from the CBD.`
 
 A number belongs in an exam-mode deck when it *is* the lesson: a study's headline
 estimate that the lecture builds its conclusion on, a threshold that defines a method
@@ -98,7 +98,10 @@ Read the format from the syllabus or exam context and bend the cards toward it.
 ## Blueprint first (exam and cram mode)
 
 Before writing any cards, write the blueprint file you were given: for each lecture, list
-6–12 questions you predict could appear on the exam, most likely first. Use this format:
+6–12 questions you predict could appear on the exam, most likely first. The blueprints
+become a Markdown study sheet, so write their math as Markdown LaTeX (`$\bar{d} =
+\sqrt{NL/\pi}$`, `$$...$$` for display), never as Unicode pseudo-math. (The `$`
+delimiters are for blueprints only; cards use `\( ... \)`.) Use this format:
 
 ```
 ## <Lecture title>

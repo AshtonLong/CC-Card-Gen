@@ -26,6 +26,11 @@ Before starting, read these two files. They define the card format and the yield
 - <SKILL_DIR>/references/card_writing.md
 - <SKILL_DIR>/references/exam_focus.md
 
+All math (formulas, and any variable with a subscript, accent or Greek letter) must be
+typeset in MathJax, `\( ... \)` or `\[ ... \]`, never written as Unicode or ASCII
+pseudo-math. Follow "Math: always MathJax" in card_writing.md, including its JSON
+backslash rule. The validator rejects pseudo-math.
+
 YOUR LECTURE(S):
 - <Lecture title>
   - Extracted text (read all of it): <path to .txt> (pages are delimited by "===== PAGE N =====")
