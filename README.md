@@ -10,7 +10,8 @@ Point it at a folder of PDFs (or PPTX/DOCX) and it will:
 2. read your syllabus to find the exam format, the scope and the assessment materials;
 3. split the lectures across **parallel Claude Code subagents**, which read every slide
    (viewing figure pages as images) and write cloze cards;
-4. validate the cards (cloze syntax, duplicates, figure references, yield levels);
+4. validate the cards (cloze syntax, MathJax math formatting, duplicates, figure
+   references, yield levels);
 5. package everything into one `.apkg` with a subdeck per lecture and slide images on
    the back of the cards that need them.
 
@@ -108,7 +109,8 @@ options. The deck is written to the lecture folder unless you pass `out=`.
 - `<Course>_<depth>.apkg` with one subdeck per lecture. Double-click it to import, or use
   File → Import in Anki.
 - **The cards**: each card uses the "Lecture Cloze (anki-deck skill)" note type, with these fields:
-  - **Text**: the cloze sentence
+  - **Text**: the cloze sentence. Formulas and symbols are typeset with MathJax
+    (`\( ... \)`), which Anki renders natively, and clozes can sit inside a formula.
   - **Back Extra**: a short explanation or intuition
   - **Figure**: the slide image, when a graph or table is the thing to learn
   - **Source**: the file and page the card came from
@@ -117,7 +119,9 @@ options. The deck is written to the lecture folder unless you pass `out=`.
 - **Predicted questions (exam/cram)**: `<course>_predicted_questions.md` lists the
   predicted exam questions, with full-mark answer outlines.
 - **Rebuilding**: note IDs are stable, so re-importing a rebuilt deck updates the
-  existing notes and keeps your review history.
+  existing notes and keeps your review history. Before rewriting the text of cards you
+  have already imported, run `build_deck.py <manifest> --pin-guids` so the edited cards
+  keep their IDs.
 
 A full-depth deck for a 10-lecture course is often 600–800 notes (1,000+ cards). Anki
 introduces 20 new cards a day by default, so raise that limit if your exam is soon.
@@ -135,12 +139,12 @@ skills/anki-deck/
 ├── SKILL.md                   # the orchestration workflow Claude follows
 ├── references/
 │   ├── subagent_brief.md      # prompt template for each card-writing subagent
-│   ├── card_writing.md        # card JSON format, cloze rules, figure handling
+│   ├── card_writing.md        # card JSON format, cloze rules, MathJax math, figures
 │   └── exam_focus.md          # yield rubric, evidence ladder, predicted-question blueprint
 └── scripts/
     ├── extract_text.py        # PDF/PPTX/DOCX/TXT -> text with page markers + inventory
     ├── render_pages.py        # PDF pages -> PNG for viewing figures and equations
-    ├── validate_cards.py      # checks cloze syntax, tags, yield, figures, near-duplicates
+    ├── validate_cards.py      # checks cloze syntax, math, tags, yield, figures, duplicates
     └── build_deck.py          # manifest -> .apkg (genanki), with figure images
 ```
 

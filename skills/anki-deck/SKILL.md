@@ -105,6 +105,9 @@ random cards per file and ask:
 
 - Does each card test one meaningful fact, and is the answer unambiguous?
 - At exam or cram depth, would this card plausibly earn marks?
+- Is every formula and symbol typeset in MathJax (`\( ... \)`), with no Unicode or ASCII
+  pseudo-math such as `θ_A`, `√(NL/π)` or `β̂`? The validator catches most of these as
+  errors, but also read the math in the sampled cards for TeX that won't render.
 
 If a whole file misses the bar (wrong depth, padded with trivia), send that agent a
 correction with SendMessage, quoting the specific cards, rather than rewriting it yourself.
@@ -131,6 +134,11 @@ Write `WORK/manifest.json` and run `python SKILL_DIR/scripts/build_deck.py WORK/
 - **What the build does.** It renders figure slides into the cards and gives notes stable
   IDs, so re-importing a rebuilt deck updates the existing notes instead of duplicating
   them. It also re-opens the package and prints note and card counts.
+- **Editing cards after the student has imported them.** Note IDs come from the card
+  text. If you are about to rewrite card text, for example to fix formatting, first run
+  `python SKILL_DIR/scripts/build_deck.py WORK/manifest.json --pin-guids`. It stores each
+  card's current ID in a `guid` field, so the edited deck updates the student's existing
+  notes and keeps their review history. Without it the import creates duplicates.
 - **Blueprints (exam/cram).** Also join the blueprints into
   `<folder>/<course>_predicted_questions.md`. The predicted questions and their full-mark
   answers are a useful study sheet in their own right.
